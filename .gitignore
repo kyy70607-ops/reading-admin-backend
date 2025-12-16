@@ -1,0 +1,7 @@
+__pycache__/
+venv/
+.env
+
+# Firebase / GCP secrets
+shared_resources/firebase/serviceAccountKey.json
+
