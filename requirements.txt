@@ -1,5 +1,6 @@
+firebase-admin
+google-cloud-firestore
 fastapi
 uvicorn
-python-jose[cryptography]
+python-jose
 passlib[bcrypt]
-google-cloud-firestore
