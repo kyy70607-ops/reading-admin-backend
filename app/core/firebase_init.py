@@ -1,20 +1,19 @@
+# app/core/firebase_init.py
 import os
 import json
-from google.cloud import firestore
-from google.oauth2 import service_account
+import firebase_admin
+from firebase_admin import credentials, firestore
 
 def get_firestore_client():
-    raw = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
-    if not raw:
+    if firebase_admin._apps:
+        return firestore.client()
+
+    cred_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+    if not cred_json:
         raise RuntimeError("GOOGLE_APPLICATION_CREDENTIALS_JSON is not set")
 
-    credentials_info = json.loads(raw)
+    cred_dict = json.loads(cred_json)
+    cred = credentials.Certificate(cred_dict)
+    firebase_admin.initialize_app(cred)
 
-    credentials = service_account.Credentials.from_service_account_info(
-        credentials_info
-    )
-
-    return firestore.Client(
-        credentials=credentials,
-        project=credentials.project_id
-    )
+    return firestore.client()

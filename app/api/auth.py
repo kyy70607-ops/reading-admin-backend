@@ -1,20 +1,20 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from passlib.context import CryptContext
-from jose import jwt
-from datetime import datetime, timedelta
+from fastapi import APIRouter, Header, HTTPException
+from app.core.firebase_admin import verify_token
 
-from app.core.firebase_init import get_firestore_client
+router = APIRouter(prefix="/admin", tags=["admin"])
 
-router = APIRouter()
-db = get_firestore_client()
+@router.get("/me")
+def admin_me(authorization: str = Header(None)):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="No token")
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    try:
+        token = authorization.replace("Bearer ", "")
+        user = verify_token(token)
+        return {
+            "uid": user["uid"],
+            "email": user.get("email")
+        }
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
-SECRET_KEY = "super-secret-key"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
-highlighted:
-class LoginRequest(BaseModel):
-    email: str
-    password: str
